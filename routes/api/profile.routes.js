@@ -126,13 +126,13 @@ router.get("/user/:user_id", async (req, res) => {
       user: req.params.user_id,
     }).populate("user", ["name", "avatar"]);
 
-    if (!profile) return res.status(400).json({ msg: "Profile not found" });
+    if (!profile) return res.status(404).json({ msg: "Profile not found" });
 
     res.json(profile);
   } catch (err) {
     console.error(err.message);
     if (err.name === "CastError")
-      return res.status(400).json({ msg: "Profile not found" });
+      return res.status(404).json({ msg: "Profile not found" });
     res.status(500).json("Server Error");
   }
 });
