@@ -4,17 +4,24 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 import Spinner from "../layout/Spinner.component";
+import DashboardActions from "./DashboardActions.component";
+import Experience from "./Experience.component";
+import Education from "./Education.component";
 
-import { getCurrentProfile } from "../../actions/profile.actions";
+import {
+  getCurrentProfile,
+  deleteAccount,
+} from "../../actions/profile.actions";
 
 const Dashboard = ({
   getCurrentProfile,
+  deleteAccount,
   auth: { user },
   profile: { profile, loading },
 }) => {
   useEffect(() => {
-    getCurrentProfile();
-  }, [loading]);
+    if (user) getCurrentProfile();
+  }, [user, getCurrentProfile]);
 
   return loading && profile === null ? (
     <Spinner />
@@ -24,22 +31,46 @@ const Dashboard = ({
       <p className="lead">
         <i className="fas fa-user"></i> Welcome {user && user.name}
       </p>
-      {profile !== null ? (
-        <>Has</>
-      ) : (
-        <>
-          <p>You have not yet setup a profile, please add some info</p>
-          <Link to="/create-profile" className="btn btn-primary my-1">
-            Create Profile
-          </Link>
-        </>
-      )}
+      {user ? (
+        profile !== null ? (
+          <>
+            <DashboardActions />
+            {profile.experience.length > 0 ? (
+              <Experience experience={profile.experience} />
+            ) : (
+              ""
+            )}
+            {profile.education.length > 0 ? (
+              <Education education={profile.education} />
+            ) : (
+              ""
+            )}
+
+            <div className="my-2">
+              <button
+                className="btn btn-danger"
+                onClick={() => deleteAccount()}
+              >
+                <i className="fas fa-user-minus"></i> Delete Account
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>You have not yet setup a profile, please add some info</p>
+            <Link to="/create-profile" className="btn btn-primary my-1">
+              Create Profile
+            </Link>
+          </>
+        )
+      ) : null}
     </>
   );
 };
 
 Dashboard.propTypes = {
   getCurrentProfile: PropTypes.func.isRequired,
+  deleteAccount: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   profile: PropTypes.object.isRequired,
 };
@@ -49,4 +80,6 @@ const mapStateToProps = (state) => ({
   profile: state.profileReducer,
 });
 
-export default connect(mapStateToProps, { getCurrentProfile })(Dashboard);
+export default connect(mapStateToProps, { getCurrentProfile, deleteAccount })(
+  Dashboard
+);

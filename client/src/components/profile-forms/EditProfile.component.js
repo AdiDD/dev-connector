@@ -1,11 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import Spinner from "../layout/Spinner.component";
 
-import { createProfile } from "../../actions/profile.actions";
+import {
+  createProfile,
+  getCurrentProfile,
+} from "../../actions/profile.actions";
 
-const CreateProfile = ({ history, createProfile }) => {
+const EditProfile = ({
+  history,
+  profile: { profile, loading },
+  auth: { user },
+  createProfile,
+  getCurrentProfile,
+}) => {
   const [formData, setFromData] = useState({
     company: "",
     website: "",
@@ -22,6 +32,28 @@ const CreateProfile = ({ history, createProfile }) => {
   });
 
   const [displaySocialInputs, toggleSocialInputs] = useState(false);
+
+  useEffect(() => {
+    console.log("Used effect");
+
+    if (user) getCurrentProfile();
+
+    setFromData({
+      company: loading || !profile.company ? "" : profile.company,
+      website: loading || !profile.website ? "" : profile.website,
+      location: loading || !profile.location ? "" : profile.location,
+      status: loading || !profile.status ? "" : profile.status,
+      skills: loading || !profile.skills ? "" : profile.skills.toString(),
+      githubusername:
+        loading || !profile.githubusername ? "" : profile.githubusername,
+      bio: loading || !profile.bio ? "" : profile.bio,
+      twitter: loading || !profile.social ? "" : profile.social.twitter,
+      facebook: loading || !profile.social ? "" : profile.social.facebook,
+      linkedin: loading || !profile.social ? "" : profile.social.linkedin,
+      youtube: loading || !profile.social ? "" : profile.social.youtube,
+      instagram: loading || !profile.social ? "" : profile.social.instagram,
+    });
+  }, [loading, user]);
 
   const {
     company,
@@ -43,10 +75,12 @@ const CreateProfile = ({ history, createProfile }) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    createProfile(formData, history);
+    createProfile(formData, history, true);
   };
 
-  return (
+  return loading || !user ? (
+    <Spinner />
+  ) : (
     <>
       <h1 className="large text-primary">Create Your Profile</h1>
       <p className="lead">
@@ -221,8 +255,18 @@ const CreateProfile = ({ history, createProfile }) => {
   );
 };
 
-CreateProfile.propTypes = {
+EditProfile.propTypes = {
   createProfile: PropTypes.func.isRequired,
+  getCurrentProfile: PropTypes.func.isRequired,
+  profile: PropTypes.object.isRequired,
+  auth: PropTypes.object.isRequired,
 };
 
-export default connect(null, { createProfile })(withRouter(CreateProfile));
+const mapStateToProps = (state) => ({
+  profile: state.profileReducer,
+  auth: state.authReducer,
+});
+
+export default connect(mapStateToProps, { createProfile, getCurrentProfile })(
+  withRouter(EditProfile)
+);
