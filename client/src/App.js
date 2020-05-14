@@ -13,6 +13,7 @@ import CreateProfile from "./components/profile-forms/CreateProfile.component";
 import EditProfile from "./components/profile-forms/EditProfile.component";
 import AddExperience from "./components/profile-forms/AddExperience.component";
 import AddEducation from "./components/profile-forms/AddEducation.component";
+import Profiles from "./components/profiles/Profiles.component";
 
 import store from "./store";
 import { loadUser } from "./actions/auth.actions";
@@ -36,6 +37,7 @@ const App = () => {
           <Switch>
             <Route exact path="/register" component={Register} />
             <Route exact path="/login" component={Login} />
+            <Route exact path="/profiles" component={Profiles} />
             <PrivateRoute exact path="/dashboard" component={Dashboard} />
             <PrivateRoute
               exact
